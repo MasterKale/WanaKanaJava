@@ -5,12 +5,15 @@ I converted WanaKana (https://github.com/wanikani/wanakana) to Java for use in A
 
 Usage
 ============
-The methods described on WanaKana's documentation (https://github.com/WaniKani/WanaKana/blob/master/README.md#documentation) should all work in the same manner. I took some slight liberties on bind() and unbind(), though -  you don't need to pass anything along when you call them:
+Here's how to instantiate the class:
 ```java
-// Create a new WanaKanaJava. Pass in an EditText and a boolean to indicate whether or not you want to use obsolete kana such as ゐ and ゑ
+// Pass in an EditText and a boolean to indicate whether or not you want to use obsolete kana such as ゐ and ゑ
 EditText et = (EditText) findViewById(R.id.editText);
 WanaKanaJava wkj = new WanaKanaJava(et, false);
+```
 
+The methods described on WanaKana's documentation (https://github.com/WaniKani/WanaKana/blob/master/README.md#documentation) should all work in the same manner. I took some slight liberties on bind() and unbind(), though -  you don't need to pass anything along when you call them:
+```java
 // Bind a TextWatcher to the EditText so any text input is converted
 wkj.bind();
 
