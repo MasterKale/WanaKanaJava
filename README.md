@@ -41,3 +41,9 @@ wanakana.toKatakana(string)
 // Convert Kana to Romaji.
 wanakana.toRomaji(string)
 ```
+
+Screenshot
+==========
+I included a sample app so you can see a practical implementation of WanaKanaJava. Here's a screenshot of that app
+in action on a Nexus 7 running 4.3: 
+![Imgur](http://i.imgur.com/LvTuVqY.png)
