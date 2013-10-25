@@ -24,9 +24,11 @@ public class WanaKanaJava
 	static final int HIRAGANA_END = 0x3096;
 	static final int KATAKANA_START = 0x30A1;
 	static final int KATAKANA_END = 0x30FA;
+
 	HashMap<String, Boolean> mOptions = new HashMap<String, Boolean>();
 	static final String OPTION_USE_OBSOLETE_KANA = "useObsoleteKana";
 	static final String OPTION_IME_MODE = "IMEMode";
+
 	HashMap<String, String> mRtoJ = new HashMap<String, String>();
 	HashMap<String, String> mJtoR = new HashMap<String, String>();
 
@@ -87,16 +89,11 @@ public class WanaKanaJava
  * If the function returns true every time, the result will be true. Otherwise, false.
  */
 
-	private boolean _allTrue(String[] arr, Command func)
+	private boolean _allTrue(String checkStr, Command func)
 	{
-		String val;
-		int _i;
-		int _len;
-
-		for (_i = 0, _len = arr.length; _i < _len; _i++)
+		for (int _i = 0; _i < checkStr.length(); _i++)
 		{
-			val = arr[_i];
-			if (!func.run(val))
+			if (!func.run(String.valueOf(checkStr.charAt(_i))))
 			{
 				return false;
 			}
@@ -108,9 +105,9 @@ public class WanaKanaJava
  * Takes a character and a unicode range. Returns true if the char is in the range.
  */
 
-	private boolean _isCharInRange(String str, int start, int end)
+	private boolean _isCharInRange(char chr, int start, int end)
 	{
-		int code = Character.codePointAt(str, 0);
+		int code = (int) chr;
 		return (start <= code && code <= end);
 	}
 
@@ -130,45 +127,40 @@ public class WanaKanaJava
 		return matcher.find();
 	}
 
-	private boolean _isCharKatakana(String str)
+	private boolean _isCharKatakana(char chr)
 	{
-		return _isCharInRange(str, KATAKANA_START, KATAKANA_END);
+		return _isCharInRange(chr, KATAKANA_START, KATAKANA_END);
 	}
 
-	private boolean _isCharHiragana(String str)
+	private boolean _isCharHiragana(char chr)
 	{
-		return _isCharInRange(str, HIRAGANA_START, HIRAGANA_END);
+		return _isCharInRange(chr, HIRAGANA_START, HIRAGANA_END);
 	}
 
-	private boolean _isCharKana(String str)
+	private boolean _isCharKana(char chr)
 	{
-		return _isCharHiragana(str) || _isCharKatakana(str);
+		return _isCharHiragana(chr) || _isCharKatakana(chr);
 	}
 
-	private boolean _isCharNotKana(String str)
+	private boolean _isCharNotKana(char chr)
 	{
-		return !_isCharHiragana(str) && !_isCharKatakana(str);
+		return !_isCharHiragana(chr) && !_isCharKatakana(chr);
 	}
 
 	private String _katakanaToHiragana(String kata)
 	{
-		String[] _ref = kata.split("");
 		int code;
 		String hira = "";
-		String hiraChar;
-		String kataChar;
-		int _i;
-		int _len;
 
-		for (_i = 0, _len = _ref.length; _i < _len; _i++)
+		for (int _i = 0; _i < kata.length(); _i++)
 		{
-			kataChar = _ref[_i];
+			char kataChar = kata.charAt(_i);
+
 			if (_isCharKatakana(kataChar))
 			{
-				code = Character.codePointAt(kataChar, 0);
+				code = (int) kataChar;
 				code += HIRAGANA_START - KATAKANA_START;
-				hiraChar = new String(new int[code], 0, 1);
-				hira += hiraChar;
+				hira += String.valueOf(Character.toChars(code));
 			}
 			else
 			{
@@ -181,34 +173,35 @@ public class WanaKanaJava
 
 	private String _hiraganaToKatakana(String hira)
 	{
-		String[] _ref = hira.split("");
 		int code;
 		String kata = "";
-		String kataChar;
-		String hiraChar;
-		int _i;
-		int _len;
 
-		for (_i = 0, _len = _ref.length; _i < _len; _i++)
+		for (int _i = 0; _i < hira.length(); _i++)
 		{
-			hiraChar = _ref[_i];
+			char hiraChar = hira.charAt(_i);
+
 			if (_isCharHiragana(hiraChar))
 			{
-				code = Character.codePointAt(hiraChar, 0);
+				code = (int) hiraChar;
 				code += KATAKANA_START - HIRAGANA_START;
-				kataChar = new String(new int[code], 0, 1);
-				kata += kataChar;
+				kata += String.valueOf(Character.toChars(code));
 			}
 			else
 			{
 				kata += hiraChar;
 			}
 		}
+
 		return kata;
 	}
 
 	public String _hiraganaToRomaji(String hira)
 	{
+		if(isRomaji(hira))
+		{
+			return hira;
+		}
+
 		String chunk = "";
 		int chunkSize;
 		int cursor = 0;
@@ -277,7 +270,7 @@ public class WanaKanaJava
 		int len = roma.length();
 		int maxChunk = 3;
 		String kana = "";
-		String kanaChar = null;
+		String kanaChar = "";
 
 		if (ignoreCase == null)
 		{
@@ -302,7 +295,7 @@ public class WanaKanaJava
 
 				if (String.valueOf(chunkLC.charAt(0)).equals("n"))
 				{
-					if (_isCharConsonant(String.valueOf(chunkLC.charAt(1)), false) && _isCharVowel(String.valueOf(chunkLC.charAt(2)), false))
+					if (chunk.length() > 2 && _isCharConsonant(String.valueOf(chunkLC.charAt(1)), false) && _isCharVowel(String.valueOf(chunkLC.charAt(2)), false))
 					{
 						chunkSize = 1;
 						chunk = roma.substring(position, chunkSize);
@@ -310,10 +303,18 @@ public class WanaKanaJava
 					}
 				}
 
-				if (!String.valueOf(chunkLC.charAt(0)).equals("n") && _isCharConsonant(String.valueOf(chunkLC.charAt(0)), false) && chunk.length() > 1 && chunk.charAt(0) == chunk.charAt(1))
+				if (chunk.length() > 1 && !String.valueOf(chunkLC.charAt(0)).equals("n") && _isCharConsonant(String.valueOf(chunkLC.charAt(0)), false) && chunk.charAt(0) == chunk.charAt(1))
 				{
 					chunkSize = 1;
-					chunkLC = chunk = "っ";
+					// Return a small katakana ツ when typing in uppercase
+					if(_isCharInRange(chunk.charAt(0), UPPERCASE_START, UPPERCASE_END))
+					{
+						chunkLC = chunk = "ッ";
+					}
+					else
+					{
+						chunkLC = chunk = "っ";
+					}
 				}
 
 				kanaChar = mRtoJ.get(chunkLC);
@@ -353,7 +354,7 @@ public class WanaKanaJava
 			}
 			if (!ignoreCase)
 			{
-				if (_isCharInRange(String.valueOf(chunk.charAt(0)), UPPERCASE_START, UPPERCASE_END))
+				if (_isCharInRange(chunk.charAt(0), UPPERCASE_START, UPPERCASE_END))
 				{
 					kanaChar = _hiraganaToKatakana(kanaChar);
 				}
@@ -388,39 +389,31 @@ public class WanaKanaJava
 
 	public boolean isHiragana(String input)
 	{
-		String[] chars;
-		chars = input.split("");
-		return _allTrue(chars, new Command()
+		return _allTrue(input, new Command()
 		{
 			@Override
 			public boolean run(String str)
 			{
-				return _isCharHiragana(str);
+				return _isCharHiragana(str.charAt(0));
 			}
 		});
 	}
 
 	public boolean isKatakana(String input)
 	{
-		String[] chars;
-		chars = input.split("");
-
-		return _allTrue(chars, new Command()
+		return _allTrue(input, new Command()
 		{
 			@Override
 			public boolean run(String str)
 			{
-				return _isCharKatakana(str);
+				return _isCharKatakana(str.charAt(0));
 			}
 		});
 	}
 
 	public boolean isKana(String input)
 	{
-		String[] chars;
-		chars = input.split("");
-
-		return _allTrue(chars, new Command()
+		return _allTrue(input, new Command()
 		{
 			@Override
 			public boolean run(String str)
@@ -432,10 +425,7 @@ public class WanaKanaJava
 
 	public boolean isRomaji(String input)
 	{
-		String[] chars;
-		chars = input.split("");
-
-		return _allTrue(chars, new Command()
+		return _allTrue(input, new Command()
 		{
 			@Override
 			public boolean run(String str)
@@ -755,7 +745,6 @@ public class WanaKanaJava
 		mRtoJ.put("wo", "を");
 		mRtoJ.put("lwe", "ゎ");
 		mRtoJ.put("xwa", "ゎ");
-		mRtoJ.put("n", "ん");
 		mRtoJ.put("nn", "ん");
 		mRtoJ.put("'n '", "ん");
 		mRtoJ.put("xn", "ん");
