@@ -70,25 +70,19 @@ public class WanaKanaJava
 		}
 	};
 
-	/**
-	 * Automatically sets up an input field to be an IME.
-	 */
-
+	// Bind a listener to the EditText so we know to start converting text entered into it
 	public void bind()
 	{
 		gInputWindow.addTextChangedListener(tw);
 	}
 
+	// Stop listening to text input on the EditText
 	public void unbind()
 	{
 		gInputWindow.removeTextChangedListener(tw);
 	}
 
-/**
- * Takes an array of values and a function. The function is called with each value.
- * If the function returns true every time, the result will be true. Otherwise, false.
- */
-
+	// Pass every character of a string through a function and return TRUE if every character passes the function's check
 	private boolean _allTrue(String checkStr, Command func)
 	{
 		for (int _i = 0; _i < checkStr.length(); _i++)
@@ -101,28 +95,25 @@ public class WanaKanaJava
 		return true;
 	}
 
-/**
- * Takes a character and a unicode range. Returns true if the char is in the range.
- */
-
+	// Check if a character is within a Unicode range
 	private boolean _isCharInRange(char chr, int start, int end)
 	{
 		int code = (int) chr;
 		return (start <= code && code <= end);
 	}
 
-	private boolean _isCharVowel(String str, boolean includeY)
+	private boolean _isCharVowel(char chr, boolean includeY)
 	{
 		Pattern regexp = includeY ? Pattern.compile("[aeiouy]") : Pattern.compile("[aeiou]");
-		Matcher matcher = regexp.matcher(str.toLowerCase().substring(0,1));
+		Matcher matcher = regexp.matcher(String.valueOf(chr));
 
 		return matcher.find();
 	}
 
-	private boolean _isCharConsonant(String str, boolean includeY)
+	private boolean _isCharConsonant(char chr, boolean excludeY)
 	{
-		Pattern regexp = includeY ? Pattern.compile("[bcdfghjklmnpqrstvwxyz]") : Pattern.compile("[bcdfghjklmnpqrstvwxz]");
-		Matcher matcher = regexp.matcher(str.toLowerCase().substring(0,1));
+		Pattern regexp = excludeY ? Pattern.compile("[bcdfghjklmnpqrstvwxz]") : Pattern.compile("[bcdfghjklmnpqrstvwxyz]");
+		Matcher matcher = regexp.matcher(String.valueOf(chr));
 
 		return matcher.find();
 	}
@@ -140,11 +131,6 @@ public class WanaKanaJava
 	private boolean _isCharKana(char chr)
 	{
 		return _isCharHiragana(chr) || _isCharKatakana(chr);
-	}
-
-	private boolean _isCharNotKana(char chr)
-	{
-		return !_isCharHiragana(chr) && !_isCharKatakana(chr);
 	}
 
 	private String _katakanaToHiragana(String kata)
@@ -216,7 +202,7 @@ public class WanaKanaJava
 			chunkSize = Math.min(maxChunk, len - cursor);
 			while (chunkSize > 0)
 			{
-				chunk = hira.substring(cursor, chunkSize);
+				chunk = hira.substring(cursor, (cursor+chunkSize));
 
 				if (isKatakana(chunk))
 				{
@@ -283,27 +269,32 @@ public class WanaKanaJava
 
 			while (chunkSize > 0)
 			{
-				chunk = roma.substring(position, position+chunkSize);
+				chunk = roma.substring(position, (position+chunkSize));
 				chunkLC = chunk.toLowerCase();
 
-				if (chunkLC.equals("lts") && (len - position) >= 4)
+				if ((chunkLC.equals("lts") || chunkLC.equals("xts")) && (len - position) >= 4)
 				{
 					chunkSize++;
-					chunk = roma.substring(position, chunkSize);
+					// The second parameter in substring() is an end point, not a length!
+					chunk = roma.substring(position, (position+chunkSize));
 					chunkLC = chunk.toLowerCase();
 				}
 
 				if (String.valueOf(chunkLC.charAt(0)).equals("n"))
 				{
-					if (chunk.length() > 2 && _isCharConsonant(String.valueOf(chunkLC.charAt(1)), false) && _isCharVowel(String.valueOf(chunkLC.charAt(2)), false))
+					// If the user types "nto", automatically convert "n" to "ん" first
+					if (chunk.length() > 2 && _isCharConsonant(chunkLC.charAt(1), false) && _isCharVowel(chunkLC.charAt(2), false))
 					{
 						chunkSize = 1;
-						chunk = roma.substring(position, chunkSize);
+						// I removed the "n"->"ん" mapping because the IME wouldn't let me type "na" for "な" without returning "んあ",
+						// so the chunk needs to be manually set to a value that will map to "ん"
+						chunk = "nn";
 						chunkLC = chunk.toLowerCase();
 					}
 				}
 
-				if (chunk.length() > 1 && !String.valueOf(chunkLC.charAt(0)).equals("n") && _isCharConsonant(String.valueOf(chunkLC.charAt(0)), false) && chunk.charAt(0) == chunk.charAt(1))
+				// Prepare to return a small-つ because we're looking at double-consonants.
+				if (chunk.length() > 1 && !String.valueOf(chunkLC.charAt(0)).equals("n") && _isCharConsonant(chunkLC.charAt(0), false) && chunk.charAt(0) == chunk.charAt(1))
 				{
 					chunkSize = 1;
 					// Return a small katakana ツ when typing in uppercase
@@ -749,6 +740,7 @@ public class WanaKanaJava
 		mRtoJ.put("'n '", "ん");
 		mRtoJ.put("xn", "ん");
 		mRtoJ.put("ltsu", "っ");
+		mRtoJ.put("xtsu", "っ");
 	}
 
 	private void prepareJtoR()
