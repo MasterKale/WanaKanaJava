@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 
 /**
  * A Java version of the Javascript WanaKana romaji-to-kana converter library (https://github.com/WaniKani/WanaKana)
- * Version 1.1.0
+ * Version 1.1.1
  */
 public class WanaKanaJava
 {
@@ -73,13 +73,19 @@ public class WanaKanaJava
 	// Bind a listener to the EditText so we know to start converting text entered into it
 	public void bind()
 	{
-		gInputWindow.addTextChangedListener(tw);
+		if(gInputWindow != null)
+		{
+			gInputWindow.addTextChangedListener(tw);
+		}
 	}
 
 	// Stop listening to text input on the EditText
 	public void unbind()
 	{
-		gInputWindow.removeTextChangedListener(tw);
+		if(gInputWindow != null)
+		{
+			gInputWindow.removeTextChangedListener(tw);
+		}
 	}
 
 	// Pass every character of a string through a function and return TRUE if every character passes the function's check
