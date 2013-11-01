@@ -110,9 +110,9 @@ public class WanaKanaJava
 		return matcher.find();
 	}
 
-	private boolean _isCharConsonant(char chr, boolean excludeY)
+	private boolean _isCharConsonant(char chr, boolean includeY)
 	{
-		Pattern regexp = excludeY ? Pattern.compile("[bcdfghjklmnpqrstvwxz]") : Pattern.compile("[bcdfghjklmnpqrstvwxyz]");
+		Pattern regexp = includeY ? Pattern.compile("[bcdfghjklmnpqrstvwxyz]") : Pattern.compile("[bcdfghjklmnpqrstvwxz]");
 		Matcher matcher = regexp.matcher(String.valueOf(chr));
 
 		return matcher.find();
@@ -282,8 +282,16 @@ public class WanaKanaJava
 
 				if (String.valueOf(chunkLC.charAt(0)).equals("n"))
 				{
+					// Convert n' to ん
+					if(mOptions.get(OPTION_IME_MODE) && chunk.length() == 2 && String.valueOf(chunkLC.charAt(1)).equals("'"))
+					{
+						chunkSize = 2;
+						chunk = "nn";
+						chunkLC = chunk.toLowerCase();
+					}
 					// If the user types "nto", automatically convert "n" to "ん" first
-					if (chunk.length() > 2 && _isCharConsonant(chunkLC.charAt(1), false) && _isCharVowel(chunkLC.charAt(2), false))
+					// "y" is excluded from the list of consonants so we can still get にゃ, にゅ, and にょ
+					if(chunk.length() > 2 && _isCharConsonant(chunkLC.charAt(1), false) && _isCharVowel(chunkLC.charAt(2), true))
 					{
 						chunkSize = 1;
 						// I removed the "n"->"ん" mapping because the IME wouldn't let me type "na" for "な" without returning "んあ",
@@ -294,7 +302,7 @@ public class WanaKanaJava
 				}
 
 				// Prepare to return a small-つ because we're looking at double-consonants.
-				if (chunk.length() > 1 && !String.valueOf(chunkLC.charAt(0)).equals("n") && _isCharConsonant(chunkLC.charAt(0), false) && chunk.charAt(0) == chunk.charAt(1))
+				if (chunk.length() > 1 && !String.valueOf(chunkLC.charAt(0)).equals("n") && _isCharConsonant(chunkLC.charAt(0), true) && chunk.charAt(0) == chunk.charAt(1))
 				{
 					chunkSize = 1;
 					// Return a small katakana ツ when typing in uppercase
@@ -336,7 +344,7 @@ public class WanaKanaJava
 				}
 			}
 
-			if ((mOptions.get(OPTION_IME_MODE)) && String.valueOf(chunkLC.charAt(0)).equals("n"))
+			if (roma.length() > (position + 1) && mOptions.get(OPTION_IME_MODE) && String.valueOf(chunkLC.charAt(0)).equals("n"))
 			{
 				if ((String.valueOf(roma.charAt(position + 1)).toLowerCase().equals("y") && position == (len - 2)) || position == (len - 1))
 				{
