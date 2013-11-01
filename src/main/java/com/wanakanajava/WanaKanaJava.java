@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 
 /**
  * A Java version of the Javascript WanaKana romaji-to-kana converter library (https://github.com/WaniKani/WanaKana)
- * Created by mmiller on 10/22/13.
+ * Version 1.1.0
  */
 public class WanaKanaJava
 {
