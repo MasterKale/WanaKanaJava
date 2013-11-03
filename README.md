@@ -14,32 +14,32 @@ WanaKanaJava wkj = new WanaKanaJava(et, false);
 
 The methods described on WanaKana's documentation (https://github.com/WaniKani/WanaKana/blob/master/README.md#documentation) should all work in the same manner. I took some slight liberties on bind() and unbind(), though -  you don't need to pass anything along when you call them:
 ```java
-// Bind a TextWatcher to the EditText so any text input is converted
-wkj.bind();
+// Binds a TextWatcher to the EditText so any text input is converted
+WanaKanaJava.bind();
 
-// Unbind the TextWatcher from the EditText
-wkj.unbind();
+// Unbinds the TextWatcher from the EditText
+WanaKanaJava.unbind();
 
 // Returns false if string contains mixed characters, otherwise true if Hiragana.
-wanakana.isHiragana(string)
+WanaKanaJava.isHiragana(String);
 
 // Returns false if string contains characters outside of the kana family, otherwise true if Hiragana and/or Katakana.
-wanakana.isKana(string)
+WanaKanaJava.isKana(String);
 
 //Returns false if string contains mixed characters, otherwise true if Katakana.
-wanakana.isKatakana(string)
+WanaKanaJava.isKatakana(String);
 
 // Convert Katakana or Romaji to Hiragana.
-wanakana.toHiragana(string)
+WanaKanaJava.toHiragana(String);
 
 // Convert Romaji to Kana. Lowcase entries output Hiragana, while upcase entries output Katakana.
-wanakana.toKana(string)
+WanaKanaJava.toKana(String);
 
 // Convert Hiragana or Romaji to Katakana.
-wanakana.toKatakana(string)
+WanaKanaJava.toKatakana(String);
 
 // Convert Kana to Romaji.
-wanakana.toRomaji(string)
+WanaKanaJava.toRomaji(String);
 ```
 
 Screenshot
