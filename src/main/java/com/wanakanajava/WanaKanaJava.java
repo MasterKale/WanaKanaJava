@@ -226,7 +226,7 @@ public class WanaKanaJava
 
 				if ((romaChar != null) && nextCharIsDoubleConsonant)
 				{
-					romaChar += romaChar.charAt(0);
+					romaChar = romaChar.charAt(0) + romaChar;
 					nextCharIsDoubleConsonant = false;
 				}
 
