@@ -1,9 +1,5 @@
 package com.wanakanajava;
 
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.widget.EditText;
-
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -14,7 +10,6 @@ import java.util.regex.Pattern;
  */
 public class WanaKanaJava
 {
-	static final String TAG = "WanaKanaJava";
 
 	//static final int LOWERCASE_START = 0x61;
 	//static final int LOWERCASE_END = 0x7A;
@@ -32,60 +27,19 @@ public class WanaKanaJava
 	HashMap<String, String> mRtoJ = new HashMap<String, String>();
 	HashMap<String, String> mJtoR = new HashMap<String, String>();
 
-	EditText gInputWindow;
-
 	private interface Command
 	{
 		public boolean run(String str);
 	}
 
-	public WanaKanaJava(EditText et, Boolean useObsoleteKana)
+	public WanaKanaJava(Boolean useObsoleteKana)
 	{
-		gInputWindow = et;
 
 		mOptions.put(OPTION_USE_OBSOLETE_KANA, useObsoleteKana);
 		mOptions.put(OPTION_IME_MODE, false);
 
 		prepareRtoJ();
 		prepareJtoR();
-	}
-
-	TextWatcher tw = new TextWatcher()
-	{
-		@Override
-		public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {}
-
-		@Override
-		public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {}
-
-		@Override
-		public void afterTextChanged(Editable romaji)
-		{
-			unbind();
-			// Convert the text
-			String sKana = toKana(romaji.toString());
-			gInputWindow.setText(sKana);
-			gInputWindow.setSelection(gInputWindow.getText().length());
-			bind();
-		}
-	};
-
-	// Bind a listener to the EditText so we know to start converting text entered into it
-	public void bind()
-	{
-		if(gInputWindow != null)
-		{
-			gInputWindow.addTextChangedListener(tw);
-		}
-	}
-
-	// Stop listening to text input on the EditText
-	public void unbind()
-	{
-		if(gInputWindow != null)
-		{
-			gInputWindow.removeTextChangedListener(tw);
-		}
 	}
 
 	// Pass every character of a string through a function and return TRUE if every character passes the function's check

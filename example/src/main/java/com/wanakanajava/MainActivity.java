@@ -35,10 +35,10 @@ public class MainActivity extends Activity
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-	        EditText et = (EditText) rootView.findViewById(R.id.editText);
+          EditText et = (EditText) rootView.findViewById(R.id.editText);
 
-	        WanaKanaJava wkj = new WanaKanaJava(et, false);
-	        wkj.bind();
+          WanaKanaJavaText wkj = new WanaKanaJavaText(et, false);
+          wkj.bind();
 
             return rootView;
         }
